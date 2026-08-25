@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz entre amis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Archivo+Black&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #E7F1FA;
+    --bg2: #DCEAF6;
+    --accent: #3F6C51;
+    --accent2: #C1584F;
+    --correct: #3F6C51;
+    --text: #2B3227;
+    --muted: #6E86A0;
+    --panel: #FDFBF6;
+  }
+
+  *{ box-sizing: border-box; }
+
+  html, body{
+    margin:0; padding:0; height:100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    overflow: hidden;
+  }
+
+  /* ---------- Fond bleu pâle avec pois roses et jaunes ---------- */
+  .stage-bg{
+    position: fixed; inset:0;
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(circle 22px at 6% 12%,  rgba(246,175,193,0.55) 0%, rgba(246,175,193,0) 100%),
+      radial-gradient(circle 14px at 14% 45%, rgba(250,214,120,0.55) 0%, rgba(250,214,120,0) 100%),
+      radial-gradient(circle 20px at 9% 78%,  rgba(250,214,120,0.45) 0%, rgba(250,214,120,0) 100%),
+      radial-gradient(circle 12px at 22% 90%, rgba(246,175,193,0.5)  0%, rgba(246,175,193,0) 100%),
+      radial-gradient(circle 10px at 30% 20%, rgba(250,214,120,0.5)  0%, rgba(250,214,120,0) 100%),
+      radial-gradient(circle 16px at 35% 65%, rgba(246,175,193,0.45) 0%, rgba(246,175,193,0) 100%),
+      radial-gradient(circle 14px at 40% 8%,  rgba(246,175,193,0.5)  0%, rgba(246,175,193,0) 100%),
+      radial-gradient(circle 18px at 48% 85%, rgba(250,214,120,0.5)  0%, rgba(250,214,120,0) 100%),
+      radial-gradient(circle 10px at 55% 30%, rgba(246,175,193,0.5)  0%, rgba(246,175,193,0) 100%),
+      radial-gradient(circle 24px at 60% 55%, rgba(250,214,120,0.4)  0%, rgba(250,214,120,0) 100%),
+      radial-gradient(circle 18px at 65% 12%, rgba(246,175,193,0.5)  0%, rgba(246,175,193,0) 100%),
+      radial-gradient(circle 12px at 70% 75%, rgba(246,175,193,0.5)  0%, rgba(246,175,193,0) 100%),
+      radial-gradient(circle 16px at 75% 40%, rgba(250,214,120,0.5)  0%, rgba(250,214,120,0) 100%),
+      radial-gradient(circle 20px at 80% 90%, rgba(246,175,193,0.45) 0%, rgba(246,175,193,0) 100%),
+      radial-gradient(circle 12px at 85% 18%, rgba(250,214,120,0.5)  0%, rgba(250,214,120,0) 100%),
+      radial-gradient(circle 14px at 88% 60%, rgba(246,175,193,0.5)  0%, rgba(246,175,193,0) 100%),
+      radial-gradient(circle 20px at 92% 35%, rgba(250,214,120,0.45) 0%, rgba(250,214,120,0) 100%),
+      radial-gradient(circle 10px at 95% 80%, rgba(246,175,193,0.5)  0%, rgba(246,175,193,0) 100%),
+      radial-gradient(circle 12px at 18% 5%,  rgba(250,214,120,0.5)  0%, rgba(250,214,120,0) 100%),
+      radial-gradient(circle 16px at 5% 55%,  rgba(246,175,193,0.45) 0%, rgba(246,175,193,0) 100%),
+      radial-gradient(circle 14px at 50% 95%, rgba(250,214,120,0.5)  0%, rgba(250,214,120,0) 100%),
+      radial-gradient(circle 10px at 62% 3%,  rgba(246,175,193,0.5)  0%, rgba(246,175,193,0) 100%),
+      radial-gradient(ellipse 900px 600px at 50% -10%, rgba(255,255,255,0.4), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 50% 110%, rgba(255,255,255,0.3), transparent 60%);
+    z-index: 0;
+  }
+
+  /* ---------- Layout général ---------- */
+  .app{
+    position: relative; z-index: 1;
+    height: 100vh;
+    display: flex; flex-direction: column;
+  }
+
+  .stage{
+    flex: 1;
+    display: flex; flex-direction: column;
+    align-items: center;
+    padding: 40px 60px 20px;
+    text-align: center;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .stage-inner{
+    margin: auto 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .eyebrow{
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-size: clamp(14px, 1.6vw, 20px);
+    font-weight: 700;
+    margin-bottom: 18px;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .eyebrow .sep{ opacity:.4; }
+  .badge{
+    background: rgba(63,108,81,0.12);
+    border: 1px solid rgba(63,108,81,0.35);
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.75em;
+  }
+
+  .question-text{
+    font-family: 'Archivo Black', sans-serif;
+    font-weight: 400;
+    line-height: 1.15;
+    font-size: clamp(28px, 4.2vw, 56px);
+    max-width: 1100px;
+    text-shadow: none;
+  }
+
+  .question-image{
+    max-width: min(85vw, 900px);
+    max-height: 50vh;
+    margin: 26px 0 4px;
+    border-radius: 14px;
+    border: 3px solid rgba(43,50,39,0.1);
+    box-shadow: 0 16px 40px rgba(43,50,39,0.16);
+    object-fit: contain;
+    cursor: zoom-in;
+    transition: transform .15s;
+  }
+  .question-image:hover{
+    transform: scale(1.015);
+  }
+  .image-missing{
+    max-width: min(70vw, 640px);
+    margin: 26px 0 4px;
+    padding: 30px;
+    border-radius: 14px;
+    border: 2px dashed rgba(43,50,39,0.22);
+    color: var(--muted);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  /* ---------- Image en plein écran ---------- */
+  .image-lightbox-overlay{
+    position: fixed; inset: 0;
+    background: rgba(10,14,10,0.92);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 30;
+    padding: 30px;
+    cursor: zoom-out;
+  }
+  .image-lightbox-overlay.visible{ display: flex; }
+  .image-lightbox-overlay img{
+    max-width: 94vw;
+    max-height: 94vh;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 30px 90px rgba(0,0,0,0.5);
+  }
+  .image-lightbox-close{
+    position: fixed;
+    top: 20px; right: 26px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: #fff;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 10px;
+    padding: 8px 16px;
+    cursor: pointer;
+  }
+
+  /* ---------- Options QCM ---------- */
+  .options{
+    margin-top: 34px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 420px));
+    gap: 16px;
+    max-width: 920px;
+    width: 100%;
+  }
+  @media (max-width: 800px){
+    .options{ grid-template-columns: 1fr; }
+  }
+  .option{
+    display: flex; align-items: center; gap: 14px;
+    background: var(--panel);
+    border: 2px solid rgba(43,50,39,0.1);
+    border-radius: 14px;
+    padding: 16px 20px;
+    font-size: clamp(16px, 1.6vw, 22px);
+    font-weight: 500;
+    text-align: left;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(43,50,39,0.05);
+    transition: border-color .2s, transform .2s, background .2s;
+  }
+  .option:hover{
+    border-color: rgba(63,108,81,0.5);
+    transform: translateY(-2px);
+  }
+  .option .letter{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    color: var(--accent);
+    background: rgba(63,108,81,0.12);
+    width: 34px; height: 34px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .option.correct{
+    border-color: var(--correct);
+    background: rgba(63,108,81,0.14);
+    transform: scale(1.03);
+    animation: pop .35s ease;
+  }
+  .option.correct .letter{
+    color: #fff;
+    background: var(--correct);
+  }
+  .option.incorrect{
+    border-color: var(--accent2);
+    background: rgba(193,88,79,0.12);
+    animation: shake .4s ease;
+  }
+  .option.incorrect .letter{
+    color: #fff;
+    background: var(--accent2);
+  }
+  .options.locked .option{
+    cursor: default;
+  }
+  .options.locked .option:hover{
+    transform: none;
+    border-color: rgba(43,50,39,0.1);
+  }
+  .options.locked .option.correct:hover,
+  .options.locked .option.incorrect:hover{
+    border-color: inherit;
+  }
+
+  @keyframes pop{
+    0%{ transform: scale(1); }
+    40%{ transform: scale(1.08); }
+    100%{ transform: scale(1.03); }
+  }
+  @keyframes shake{
+    0%, 100%{ transform: translateX(0); }
+    20%{ transform: translateX(-8px); }
+    40%{ transform: translateX(8px); }
+    60%{ transform: translateX(-6px); }
+    80%{ transform: translateX(6px); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .option.correct, .option.incorrect{ animation: none; }
+  }
+
+  /* ---------- Question libre ---------- */
+  .open-answer-form{
+    margin-top: 34px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .open-answer-input{
+    font-family: 'Inter', sans-serif;
+    font-size: clamp(16px, 1.8vw, 22px);
+    padding: 14px 20px;
+    border-radius: 12px;
+    border: 2px solid rgba(43,50,39,0.16);
+    background: var(--panel);
+    color: var(--text);
+    min-width: min(90vw, 380px);
+    outline: none;
+    transition: border-color .2s;
+  }
+  .open-answer-input:focus{
+    border-color: var(--accent);
+  }
+  .open-answer-input:disabled{
+    opacity: .6;
+  }
+  .open-answer-submit{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 14px 24px;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent);
+    color: #FDFBF6;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .open-answer-submit:hover{ background: #345a44; }
+  .open-answer-submit:active{ transform: scale(0.96); }
+  .open-answer-submit:disabled{
+    opacity: .35; cursor: not-allowed;
+  }
+
+  .feedback-banner{
+    margin-top: 26px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: clamp(20px, 2.8vw, 32px);
+    border-radius: 14px;
+    padding: 16px 30px;
+    animation: pop .35s ease;
+  }
+  .feedback-banner.good{
+    color: var(--correct);
+    background: rgba(63,108,81,0.1);
+    border: 2px solid rgba(63,108,81,0.4);
+  }
+  .feedback-banner.bad{
+    color: var(--accent2);
+    background: rgba(193,88,79,0.1);
+    border: 2px solid rgba(193,88,79,0.4);
+    animation: shake .4s ease;
+  }
+  .feedback-banner.neutral{
+    color: var(--accent);
+    background: rgba(63,108,81,0.08);
+    border: 2px solid rgba(63,108,81,0.3);
+  }
+  .feedback-banner .correct-answer{
+    display: block;
+    margin-top: 6px;
+    font-size: 0.65em;
+    color: var(--text);
+    font-weight: 500;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .feedback-banner{ animation: none; }
+  }
+
+  /* ---------- Barre de contrôle (bas d'écran) ---------- */
+  .control-bar{
+    position: relative; z-index: 2;
+    display: flex; align-items: center; justify-content: center; gap: 14px;
+    padding: 14px 20px calc(14px + env(safe-area-inset-bottom));
+    background: var(--panel);
+    border-top: 1px solid rgba(43,50,39,0.08);
+    flex-wrap: wrap;
+  }
+  .control-bar button{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    background: var(--bg2);
+    border: 1px solid rgba(43,50,39,0.12);
+    border-radius: 10px;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: background .15s, transform .1s;
+  }
+  .control-bar button:hover{ background: #DEE6D1; }
+  .control-bar button:active{ transform: scale(0.96); }
+  .control-bar button.primary{
+    background: var(--accent);
+    color: #FDFBF6;
+  }
+  .control-bar button.primary:hover{ background: #345a44; }
+  .control-bar button:disabled{ opacity:.35; cursor: not-allowed; }
+
+  .progress{
+    font-family: 'Space Grotesk', sans-serif;
+    color: var(--muted);
+    font-size: 14px;
+    min-width: 70px;
+    text-align: center;
+  }
+
+  .hint-keys{
+    font-size: 12px;
+    color: var(--muted);
+    margin-left: 10px;
+  }
+
+  .end-screen{
+    font-family: 'Archivo Black', sans-serif;
+    font-size: clamp(32px, 5vw, 64px);
+    color: var(--accent);
+  }
+  .end-sub{
+    font-family: 'Space Grotesk', sans-serif;
+    color: var(--muted);
+    margin-top: 12px;
+    font-size: 18px;
+  }
+
+  /* ---------- Compteur de scores persistant (coin haut-droit) ---------- */
+  .top-scoreboard{
+    position: fixed;
+    top: 16px; right: 16px;
+    z-index: 5;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: 60vw;
+  }
+  .top-scoreboard .pill{
+    display: flex; align-items: center; gap: 8px;
+    background: var(--panel);
+    border: 2px solid rgba(43,50,39,0.08);
+    border-radius: 999px;
+    padding: 6px 14px 6px 8px;
+    box-shadow: 0 4px 14px rgba(43,50,39,0.1);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .top-scoreboard .pill .icon{
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    color: #fff;
+  }
+  .top-scoreboard .pill .name{
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .top-scoreboard .pill .score{
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  /* ---------- Barre d'attribution du point (entre la scène et les contrôles) ---------- */
+  .attribution-bar{
+    position: relative; z-index: 2;
+    display: none;
+    flex-wrap: wrap;
+    align-items: center; justify-content: center;
+    gap: 10px;
+    padding: 14px 20px;
+    background: var(--panel);
+    border-top: 1px solid rgba(43,50,39,0.08);
+  }
+  .attribution-bar.visible{ display: flex; }
+  .attribution-bar .attribution-label{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text);
+    margin-right: 6px;
+  }
+  .team-btn{
+    display: flex; align-items: center; gap: 8px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    background: #fff;
+    border: 2px solid rgba(43,50,39,0.12);
+    border-radius: 999px;
+    padding: 8px 16px 8px 8px;
+    cursor: pointer;
+    transition: transform .1s, border-color .15s, background .15s;
+  }
+  .team-btn:hover{ transform: translateY(-1px); border-color: var(--team-color, var(--accent)); }
+  .team-btn:active{ transform: scale(0.96); }
+  .team-btn .icon{
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--team-color, var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    color: #fff;
+  }
+  .team-btn.none-btn{
+    color: var(--muted);
+    border-style: dashed;
+  }
+  .team-btn.chosen{
+    border-color: var(--correct);
+    background: rgba(63,108,81,0.08);
+    cursor: default;
+  }
+  .team-btn.chosen:hover{ transform: none; }
+  .attribution-result{
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 14px;
+    color: var(--muted);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .attribution-result .change-link{
+    color: var(--accent);
+    text-decoration: underline;
+    cursor: pointer;
+    background: none; border: none;
+    font: inherit;
+    padding: 0;
+  }
+
+  /* ---------- Modale des scores ---------- */
+  .scores-modal-overlay{
+    position: fixed; inset: 0;
+    background: rgba(20,26,18,0.55);
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 20;
+    padding: 20px;
+  }
+  .scores-modal-overlay.visible{ display: flex; }
+  .scores-modal{
+    background: var(--panel);
+    border-radius: 20px;
+    padding: 36px 40px;
+    max-width: 640px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+  }
+  .scores-modal h2{
+    font-family: 'Archivo Black', sans-serif;
+    font-weight: 400;
+    font-size: 28px;
+    margin: 0 0 24px;
+    text-align: center;
+  }
+  .score-row{
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 18px;
+  }
+  .score-row .icon{
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .score-row .row-main{ flex: 1; min-width: 0; }
+  .score-row .row-top{
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: 'Space Grotesk', sans-serif;
+    margin-bottom: 6px;
+  }
+  .score-row .row-top .name{ font-weight: 700; font-size: 16px; }
+  .score-row .row-top .score{ font-weight: 700; font-size: 20px; }
+  .score-bar-track{
+    height: 14px;
+    border-radius: 999px;
+    background: rgba(43,50,39,0.08);
+    overflow: hidden;
+  }
+  .score-bar-fill{
+    height: 100%;
+    border-radius: 999px;
+    transition: width .5s ease;
+  }
+  .scores-modal .close-btn{
+    display: block;
+    margin: 24px auto 0;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    background: var(--accent);
+    color: #FDFBF6;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 24px;
+    cursor: pointer;
+  }
+  .scores-modal .reset-link{
+    display: block;
+    text-align: center;
+    margin-top: 14px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: underline;
+    cursor: pointer;
+    background: none; border: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="stage-bg"></div>
+
+<div class="top-scoreboard" id="topScoreboard"></div>
+
+<div class="app">
+  <div class="stage" id="stage"></div>
+
+  <div class="attribution-bar" id="attributionBar"></div>
+
+  <div class="control-bar">
+    <button id="prevBtn">◀ Précédente</button>
+    <span class="progress" id="progress">1 / 1</span>
+    <button id="nextBtn">Suivante ▶</button>
+    <button id="revealBtn" class="primary">Afficher la réponse</button>
+    <button id="scoresBtn">🏆 Scores</button>
+    <span class="hint-keys">← → pour naviguer · cliquez une option ou tapez la réponse · Espace = forcer la révélation</span>
+  </div>
+</div>
+
+<div class="scores-modal-overlay" id="scoresModalOverlay">
+  <div class="scores-modal">
+    <h2>Scores</h2>
+    <div id="scoresModalBody"></div>
+    <button class="close-btn" id="closeScoresBtn">Fermer</button>
+    <button class="reset-link" id="resetScoresBtn">Réinitialiser les scores</button>
+  </div>
+</div>
+
+<div class="image-lightbox-overlay" id="imageLightboxOverlay">
+  <button class="image-lightbox-close" id="closeLightboxBtn">✕ Fermer</button>
+  <img id="lightboxImg" src="" alt="">
+</div>
+
+<script>
+/* =======================================================================
+   VOS ÉQUIPES — à remplir au dernier moment.
+   Mettez de 0 à 6 équipes. Si le tableau est vide, tout le système de
+   score reste caché et le quiz fonctionne comme avant (sans score).
+
+   Chaque équipe : { name: "Nom affiché", icon: "un emoji", color: "#RRGGBB" }
+   ========================================================================= */
+
+const TEAMS = [
+  { name: "Team Licorne", icon: "🦄", color: "#3F6C51" },
+  { name: "Team Renard",  icon: "🦊", color: "#C1584F" },
+  { name: "Team Hibou",   icon: "🦉", color: "#4A7FA8" }
+];
+
+/* =======================================================================
+   VOS QUESTIONS — modifiez ce tableau pour créer votre propre quiz.
+
+   Chaque question est un objet avec :
+     - type: "mcq"   -> choix multiples (propose "options" + "correctIndex")
+             "open"  -> réponse libre (propose "answer", affiché au clic sur "Afficher la réponse")
+             "image" -> une image à montrer, combinable avec mcq ou open
+                        (ajoutez "image": "images/nom-du-fichier.jpg")
+     - question: le texte de la question
+     - options: (uniquement pour "mcq") liste des choix, dans l'ordre
+     - correctIndex: (uniquement pour "mcq") index (0,1,2,3...) de la bonne réponse
+     - answer: (uniquement pour "open") la réponse à afficher
+     - image: (optionnel, pour mcq/open/image) chemin vers le fichier image
+     - points: (optionnel) nombre de points que rapporte la question, défaut = 1
+
+   Placez vos images dans un dossier "images" à côté de ce fichier .html
+   ========================================================================= */
+
+   const questions = [
+          {
+            type: "mcq",
+            question: "Si on somme le jour et le mois des anniversaires d'Audrey et Mathieu, quel nombre obtient-on ?",
+            options: ["10", "8", "103", "16"],
+            correctIndex: 3,
+            points: 1
+          },
+          {
+            type: "open",
+            question: "Combien de mots comporte le titre de la thèse de Mathieu ?",
+            answer: "12",
+            points: 2
+          },
+          {
+            type: "image",
+            question: "Où cette photo a t'elle été prise ?",
+            image: "images/normandie.jpg",
+            answer: "Honfleur",
+            points: 1
+          },
+          {
+            type: "mcq",
+            question: "Quelle est la ville où Audrey a vécu le plus longtemps ?",
+            options: ["Vineuil", "Tours", "Rennes", "Marseille"],
+            correctIndex: 2,
+            points: 2
+          },
+       {
+         type: "open",
+         question: "Quel est le plat préféré d'Audrey ?",
+         answer: "Les crêpes",
+         points : 1
+       },
+       {
+         type: "mcq",
+         question: "Quel animal est le doudou de Mathieu ?",
+         options: ["Un chien", "un lapin", "un cheval", "une araignée"],
+         correctIndex: 1,
+         points : 2
+       },
+       {
+         type: "mcq",
+         question: "Qui est la soeur préférée de Mathieu ?",
+         options: ["Léna", "Léna Kernen", "Lénouille", "Léna manager"],
+         correctIndex: 1,
+         point : 1
+       }
+];
+
+/* ======================================================================= */
+
+let current = 0;
+let correctShown = false;  // la bonne réponse a été trouvée ou révélée pour cette question
+let questionResults = {};  // { [indexQuestion]: { team: indexEquipe|null, points: nombre } }
+
+const stage = document.getElementById('stage');
+const progress = document.getElementById('progress');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const revealBtn = document.getElementById('revealBtn');
+const scoresBtn = document.getElementById('scoresBtn');
+const attributionBar = document.getElementById('attributionBar');
+const topScoreboard = document.getElementById('topScoreboard');
+const scoresModalOverlay = document.getElementById('scoresModalOverlay');
+const scoresModalBody = document.getElementById('scoresModalBody');
+const imageLightboxOverlay = document.getElementById('imageLightboxOverlay');
+const lightboxImg = document.getElementById('lightboxImg');
+
+function openLightbox(src){
+  lightboxImg.src = src;
+  imageLightboxOverlay.classList.add('visible');
+}
+function closeLightbox(){
+  imageLightboxOverlay.classList.remove('visible');
+  lightboxImg.src = '';
+}
+
+const typeLabels = { mcq: "Choix multiples", open: "Question libre", image: "Question image" };
+const letters = ["A", "B", "C", "D", "E", "F"];
+
+/* ---------- Score : calcul et affichage ---------- */
+
+function getTeamScore(teamIndex){
+  return Object.values(questionResults)
+    .filter(r => r.team === teamIndex)
+    .reduce((sum, r) => sum + r.points, 0);
+}
+
+function renderTopScoreboard(){
+  if (TEAMS.length === 0){
+    topScoreboard.style.display = 'none';
+    scoresBtn.style.display = 'none';
+    return;
+  }
+  topScoreboard.innerHTML = TEAMS.map((team, i) => `
+    <div class="pill">
+      <span class="icon" style="background:${team.color}">${team.icon}</span>
+      <span class="name">${team.name}</span>
+      <span class="score">${getTeamScore(i)}</span>
+    </div>
+  `).join('');
+}
+
+function renderAttributionBar(){
+  const q = questions[current];
+  if (TEAMS.length === 0 || !q || !correctShown){
+    attributionBar.classList.remove('visible');
+    attributionBar.innerHTML = '';
+    return;
+  }
+
+  const points = q.points || 1;
+  const result = questionResults[current];
+
+  if (result){
+    // déjà attribué : afficher le résultat + possibilité de corriger
+    const teamLabel = result.team === null || result.team === undefined
+      ? "Personne"
+      : `${TEAMS[result.team].icon} ${TEAMS[result.team].name}`;
+    attributionBar.innerHTML = `
+      <span class="attribution-result">
+        Point attribué à : <strong>${teamLabel}</strong>
+        <button class="change-link" id="changeAttributionBtn">Modifier</button>
+      </span>`;
+    document.getElementById('changeAttributionBtn').addEventListener('click', () => {
+      delete questionResults[current];
+      renderAttributionBar();
+      renderTopScoreboard();
+    });
+  } else {
+    let html = `<span class="attribution-label">Qui remporte le point (+${points}) ?</span>`;
+    TEAMS.forEach((team, i) => {
+      html += `<button class="team-btn" style="--team-color:${team.color}" data-team="${i}">
+                 <span class="icon" style="background:${team.color}">${team.icon}</span>${team.name}
+               </button>`;
+    });
+    html += `<button class="team-btn none-btn" data-team="none">Personne</button>`;
+    attributionBar.innerHTML = html;
+
+    attributionBar.querySelectorAll('.team-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const val = btn.dataset.team;
+        attributePoint(val === 'none' ? null : parseInt(val));
+      });
+    });
+  }
+
+  attributionBar.classList.add('visible');
+}
+
+function attributePoint(teamIndex){
+  const q = questions[current];
+  questionResults[current] = { team: teamIndex, points: q.points || 1 };
+  renderAttributionBar();
+  renderTopScoreboard();
+}
+
+function openScoresModal(){
+  const maxScore = Math.max(1, ...TEAMS.map((_, i) => getTeamScore(i)));
+  scoresModalBody.innerHTML = TEAMS.map((team, i) => {
+    const score = getTeamScore(i);
+    const pct = Math.round((score / maxScore) * 100);
+    return `
+      <div class="score-row">
+        <span class="icon" style="background:${team.color}">${team.icon}</span>
+        <div class="row-main">
+          <div class="row-top">
+            <span class="name">${team.name}</span>
+            <span class="score">${score}</span>
+          </div>
+          <div class="score-bar-track">
+            <div class="score-bar-fill" style="width:${pct}%; background:${team.color}"></div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+  scoresModalOverlay.classList.add('visible');
+}
+
+function closeScoresModal(){
+  scoresModalOverlay.classList.remove('visible');
+}
+
+function render(){
+  if (current >= questions.length){
+    stage.innerHTML = `
+      <div class="end-screen">C'est terminé !</div>
+      <div class="end-sub">Merci d'avoir joué 🎉</div>`;
+    progress.textContent = `${questions.length} / ${questions.length}`;
+    nextBtn.disabled = true;
+    revealBtn.disabled = true;
+    prevBtn.disabled = false;
+    attributionBar.classList.remove('visible');
+    attributionBar.innerHTML = '';
+    return;
+  }
+
+  const q = questions[current];
+  correctShown = false;
+  prevBtn.disabled = (current === 0);
+  nextBtn.disabled = false;
+  revealBtn.disabled = false;
+  progress.textContent = `${current + 1} / ${questions.length}`;
+
+  const pointsBadge = TEAMS.length > 0
+    ? `<span class="badge">${(q.points || 1)} pt${(q.points || 1) > 1 ? 's' : ''}</span>`
+    : '';
+
+  let html = `
+    <div class="eyebrow">
+      <span>Question ${current + 1}</span>
+      <span class="sep">·</span>
+      <span class="badge">${typeLabels[q.type] || ""}</span>
+      ${pointsBadge}
+    </div>
+    <div class="question-text">${q.question}</div>
+  `;
+
+  if (q.image){
+    html += `<img class="question-image" src="${q.image}" alt=""
+              onerror="this.outerHTML='<div class=&quot;image-missing&quot;>Image introuvable : ${q.image}<br>Placez le fichier dans le dossier /images</div>'">`;
+  }
+
+  const isMcq = (q.type === "mcq" || (q.type === "image" && Array.isArray(q.options)));
+
+  if (isMcq){
+    html += `<div class="options" id="optionsWrap">`;
+    q.options.forEach((opt, i) => {
+      html += `<div class="option" data-index="${i}">
+                 <span class="letter">${letters[i]}</span><span>${opt}</span>
+               </div>`;
+    });
+    html += `</div>`;
+  } else {
+    html += `
+      <div class="open-answer-form" id="openForm">
+        <input type="text" class="open-answer-input" id="openInput" placeholder="Tapez la réponse annoncée..." autocomplete="off">
+        <button class="open-answer-submit" id="openSubmit">Valider</button>
+      </div>
+      <div id="feedbackWrap"></div>`;
+  }
+
+  stage.innerHTML = `<div class="stage-inner">${html}</div>`;
+
+  const questionImg = document.querySelector('.question-image');
+  if (questionImg){
+    questionImg.addEventListener('click', () => openLightbox(q.image));
+  }
+
+  // Attache les évènements après insertion dans le DOM
+  if (isMcq){
+    stage.querySelectorAll('.option').forEach(el => {
+      el.addEventListener('click', () => selectOption(parseInt(el.dataset.index)));
+    });
+  } else {
+    const input = document.getElementById('openInput');
+    document.getElementById('openSubmit').addEventListener('click', checkOpenAnswer);
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') checkOpenAnswer();
+    });
+    input.focus();
+  }
+
+  // Si cette question a déjà été traitée (score déjà attribué), on restaure l'affichage
+  if (questionResults[current]){
+    correctShown = true;
+    revealBtn.disabled = true;
+    showCorrectVisual();
+  }
+
+  renderAttributionBar();
+}
+
+function showCorrectVisual(){
+  const q = questions[current];
+  const isMcq = (q.type === "mcq" || (q.type === "image" && Array.isArray(q.options)));
+
+  if (isMcq){
+    const wrap = document.getElementById('optionsWrap');
+    wrap.classList.add('locked');
+    wrap.querySelectorAll('.option').forEach(el => {
+      if (parseInt(el.dataset.index) === q.correctIndex){
+        el.classList.add('correct');
+      }
+    });
+  } else if (q.answer){
+    const input = document.getElementById('openInput');
+    const submit = document.getElementById('openSubmit');
+    if (input) input.disabled = true;
+    if (submit) submit.disabled = true;
+    const feedbackWrap = document.getElementById('feedbackWrap');
+    if (feedbackWrap && !feedbackWrap.querySelector('.feedback-banner.good')){
+      feedbackWrap.innerHTML = `<div class="feedback-banner neutral">${q.answer}</div>`;
+    }
+  }
+}
+
+function normalize(str){
+  return str
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // enlève les accents
+    .replace(/[^\w\s]/g, '') // enlève la ponctuation
+    .replace(/\s+/g, ' ');
+}
+
+function selectOption(index){
+  const q = questions[current];
+  if (correctShown) return;
+
+  const wrap = document.getElementById('optionsWrap');
+  const clicked = wrap.querySelector(`.option[data-index="${index}"]`);
+
+  // une option déjà essayée (juste ou fausse) ne redéclenche rien
+  if (clicked.classList.contains('correct') || clicked.classList.contains('incorrect')) return;
+
+  if (index === q.correctIndex){
+    clicked.classList.add('correct');
+    correctShown = true;
+    wrap.classList.add('locked');
+    revealBtn.disabled = true;
+    renderAttributionBar();
+  } else {
+    clicked.classList.add('incorrect');
+  }
+}
+
+function checkOpenAnswer(){
+  const q = questions[current];
+  if (correctShown) return;
+
+  const input = document.getElementById('openInput');
+  const given = input.value;
+  const isCorrect = q.answer && normalize(given) === normalize(q.answer);
+
+  if (isCorrect){
+    correctShown = true;
+    input.disabled = true;
+    document.getElementById('openSubmit').disabled = true;
+    revealBtn.disabled = true;
+    document.getElementById('feedbackWrap').innerHTML =
+      `<div class="feedback-banner good">✓ Bonne réponse !</div>`;
+    renderAttributionBar();
+  } else {
+    document.getElementById('feedbackWrap').innerHTML =
+      `<div class="feedback-banner bad">✗ Ce n'était pas ça, retentez votre chance !</div>`;
+    input.value = '';
+    input.focus();
+  }
+}
+
+function reveal(){
+  if (correctShown) return; // la bonne réponse est déjà visible
+  correctShown = true;
+  revealBtn.disabled = true;
+  showCorrectVisual();
+  renderAttributionBar();
+}
+
+function next(){
+  if (current < questions.length){
+    current++;
+    render();
+  }
+}
+function prev(){
+  if (current > 0){
+    current--;
+    render();
+  }
+}
+
+prevBtn.addEventListener('click', prev);
+nextBtn.addEventListener('click', next);
+revealBtn.addEventListener('click', reveal);
+scoresBtn.addEventListener('click', openScoresModal);
+document.getElementById('closeScoresBtn').addEventListener('click', closeScoresModal);
+document.getElementById('resetScoresBtn').addEventListener('click', () => {
+  if (confirm('Réinitialiser tous les scores ? Cette action est irréversible.')){
+    questionResults = {};
+    renderTopScoreboard();
+    openScoresModal();
+    renderAttributionBar();
+  }
+});
+scoresModalOverlay.addEventListener('click', (e) => {
+  if (e.target === scoresModalOverlay) closeScoresModal();
+});
+document.getElementById('closeLightboxBtn').addEventListener('click', closeLightbox);
+imageLightboxOverlay.addEventListener('click', (e) => {
+  if (e.target === imageLightboxOverlay) closeLightbox();
+});
+
+document.addEventListener('keydown', (e) => {
+  const typingInField = e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA';
+  if (typingInField) return; // laisser le champ gérer ses propres touches (espace, flèches, Entrée)
+
+  if (e.key === 'Escape'){
+    if (imageLightboxOverlay.classList.contains('visible')){ closeLightbox(); return; }
+    closeScoresModal();
+    return;
+  }
+  if (imageLightboxOverlay.classList.contains('visible')) return; // pas de navigation derrière l'image plein écran
+  if (scoresModalOverlay.classList.contains('visible')) return; // pas de navigation derrière la modale
+
+  if (e.key === 'ArrowRight') next();
+  else if (e.key === 'ArrowLeft') prev();
+  else if (e.key === ' '){ e.preventDefault(); reveal(); }
+});
+
+renderTopScoreboard();
+render();
+</script>
+
+</body>
+</html>
