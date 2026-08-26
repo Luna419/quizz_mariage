@@ -638,19 +638,113 @@
   <img id="lightboxImg" src="" alt="">
 </div>
 
-<!--
-  La config des équipes et les questions sont dans des fichiers à part,
-  juste à côté de ce fichier .html :
-    - equipes.js   -> qui joue, avec quel emoji et quelle couleur
-    - questions.js -> tout le contenu du quiz
-  Ça permet de mettre à jour les questions sans jamais toucher à ce fichier.
--->
-<script src="equipes.js"></script>
-<script src="questions.js"></script>
-
 <script>
-/* ======================================================================= */
+/* =======================================================================
+   VOS ÉQUIPES — à remplir au dernier moment.
+   Mettez de 0 à 6 équipes. Si le tableau est vide, tout le système de
+   score reste caché et le quiz fonctionne comme avant (sans score).
 
+   Chaque équipe : { name: "Nom affiché", icon: "un emoji", color: "#RRGGBB" }
+   ========================================================================= */
+
+ const TEAMS = [
+   { name: "Team A", icon: "🦄", color: "#3F6C51" },
+   { name: "Team B",  icon: "🦊", color: "#C1584F" },
+ /*  { name: "Team Hibou",   icon: "🦉", color: "#4A7FA8" } */
+ ];
+
+/* =======================================================================
+   VOS QUESTIONS — modifiez ce tableau pour créer votre propre quiz.
+
+   Chaque question est un objet avec :
+     - type: "mcq"   -> choix multiples (propose "options" + "correctIndex")
+             "open"  -> réponse libre (propose "answer", affiché au clic sur "Afficher la réponse")
+             "image" -> une image à montrer, combinable avec mcq ou open
+                        (ajoutez "image": "images/nom-du-fichier.jpg")
+     - question: le texte de la question
+     - options: (uniquement pour "mcq") liste des choix, dans l'ordre
+     - correctIndex: (uniquement pour "mcq") index (0,1,2,3...) de la bonne réponse
+     - answer: (uniquement pour "open") la réponse à afficher
+     - image: (optionnel, pour mcq/open/image) chemin vers le fichier image
+     - points: (optionnel) nombre de points que rapporte la question, défaut = 1
+
+   Placez vos images dans un dossier "images" à côté de ce fichier .html
+   ========================================================================= */
+
+   const questions = [
+             {
+               type: "mcq",
+               question: "Si on somme le jour et le mois des anniversaires d'Audrey et Mathieu, quel nombre obtient-on ?",
+               options: ["10", "8", "103", "16"],
+               correctIndex: 3,
+               points: 1
+             },
+             {
+               type: "open",
+               question: "Combien de mots comporte le titre de la thèse de Mathieu ?",
+               answer: "14",
+               points: 2
+             },
+             {
+               type: "image",
+               question: "Où cette photo a t'elle été prise ?",
+               image: "images/normandie.jpg",
+               answer: "Honfleur",
+               points: 1
+             },
+             {
+               type: "mcq",
+               question: "Quelle est la ville où Audrey a vécu le plus longtemps ?",
+               options: ["Vineuil", "Tours", "Rennes", "Marseille"],
+               correctIndex: 2,
+               points: 2
+             },
+          {
+            type: "open",
+            question: "Quel est le plat préféré d'Audrey ?",
+            answer: "Les crêpes",
+            points : 1
+          },
+          {
+            type: "mcq",
+            question: "Quel animal est le doudou de Mathieu ?",
+            options: ["Un chien", "un lapin", "un cheval", "une araignée"],
+            correctIndex: 1,
+            points : 2
+          },
+          {
+            type: "mcq",
+            question: "Qui est la soeur préférée de Mathieu ?",
+            options: ["Léna", "Léna Kernen", "Lénouille", "Léna manager"],
+            correctIndex: 1,
+            point : 1
+          },
+          {
+            type: "mcq",
+            question: "Quel animal de compagnie Audrey a-t'elle eu ?",
+            options: ["Un chat", "Un chien", "Une grenouille", "Un ver de terre"],
+            correctIndex: 3,
+            point : 1
+          },
+          {
+            type: "mcq",
+            question: "De quelle matière Audrey et Mathieu ont ils été tuteur ?",
+            options: ["La biologie cellulaire", "L'anatomie", "La biologie de la reproduction", "La chimie organique"],
+            correctIndex: 0,
+            point : 1
+          }
+
+          /* question médicine pure */
+          /* où a été prise la photo où ils sont autour du poteau
+         des photos de Mathieu et Clément et il faut retrouver Mathieu
+         une question sur la Réunion !
+
+
+         efficacité des techniques de changement de comportement en médecine générale : revue de la littérature
+   */
+   ];
+
+/* ======================================================================= */
 
 let current = 0;
 let correctShown = false;  // la bonne réponse a été trouvée ou révélée pour cette question
@@ -884,7 +978,7 @@ function showCorrectVisual(){
     const wrap = document.getElementById('optionsWrap');
     wrap.classList.add('locked');
     wrap.querySelectorAll('.option').forEach(el => {
-      if (isCorrectIndex(q, parseInt(el.dataset.index))){
+      if (parseInt(el.dataset.index) === q.correctIndex){
         el.classList.add('correct');
       }
     });
@@ -910,12 +1004,6 @@ function normalize(str){
     .replace(/\s+/g, ' ');
 }
 
-// Accepte q.correctIndex sous forme d'un chiffre (2) ou d'une liste ([0, 2])
-function isCorrectIndex(q, index){
-  if (Array.isArray(q.correctIndex)) return q.correctIndex.includes(index);
-  return index === q.correctIndex;
-}
-
 function selectOption(index){
   const q = questions[current];
   if (correctShown) return;
@@ -926,11 +1014,11 @@ function selectOption(index){
   // une option déjà essayée (juste ou fausse) ne redéclenche rien
   if (clicked.classList.contains('correct') || clicked.classList.contains('incorrect')) return;
 
-  if (isCorrectIndex(q, index)){
+  if (index === q.correctIndex){
+    clicked.classList.add('correct');
     correctShown = true;
     wrap.classList.add('locked');
     revealBtn.disabled = true;
-    showCorrectVisual();
     renderAttributionBar();
   } else {
     clicked.classList.add('incorrect');
