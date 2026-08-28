@@ -37,7 +37,7 @@ const questions = [
              images: [
                "images/poteau_inv.jpg",
                "images/eventail.jpg",
-               "images/poteau.jpg",
+               "images/poteau.JPG",
                "images/cravate2.jpg"
              ],
              correctIndex: 2,
