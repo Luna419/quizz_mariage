@@ -240,6 +240,88 @@
     border-color: inherit;
   }
 
+  /* ---------- Options-images (choisir la bonne parmi plusieurs photos) ---------- */
+  .image-options{
+    grid-template-columns: repeat(2, minmax(220px, 380px));
+  }
+  .option.image-option{
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px;
+    cursor: default;
+  }
+  .option.image-option:hover{
+    transform: none;
+    border-color: rgba(43,50,39,0.1);
+  }
+  .option.image-option .option-img{
+    width: 100%;
+    height: 220px;
+    object-fit: contain;
+    background: var(--panel);
+    border-radius: 10px;
+    display: block;
+    cursor: zoom-in;
+    border: 3px solid rgba(43,50,39,0.08);
+    transition: transform .15s, border-color .2s;
+  }
+  .option.image-option .option-img:hover{
+    transform: scale(1.02);
+  }
+  .option.image-option.correct .option-img{
+    border-color: var(--correct);
+  }
+  .option.image-option.incorrect .option-img{
+    border-color: var(--accent2);
+  }
+  .letter-btn{
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    background: var(--panel);
+    border: 2px solid rgba(43,50,39,0.15);
+    border-radius: 10px;
+    padding: 10px;
+    cursor: pointer;
+    color: var(--text);
+    transition: background .15s, border-color .15s, transform .1s;
+  }
+  .letter-btn:hover{
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+  .letter-btn:active{ transform: scale(0.97); }
+  .option.correct .letter-btn{
+    background: var(--correct);
+    border-color: var(--correct);
+    color: #fff;
+    pointer-events: none;
+    animation: pop .35s ease;
+  }
+  .option.incorrect .letter-btn{
+    background: var(--accent2);
+    border-color: var(--accent2);
+    color: #fff;
+    pointer-events: none;
+    animation: shake .4s ease;
+  }
+  .option-img-missing{
+    width: 100%;
+    height: 220px;
+    border-radius: 10px;
+    border: 2px dashed rgba(43,50,39,0.22);
+    color: var(--muted);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    text-align: center;
+    padding: 10px;
+  }
+  @media (max-width: 800px){
+    .image-options{ grid-template-columns: 1fr; }
+  }
+
   @keyframes pop{
     0%{ transform: scale(1); }
     40%{ transform: scale(1.08); }
@@ -680,7 +762,7 @@ function closeLightbox(){
   lightboxImg.src = '';
 }
 
-const typeLabels = { mcq: "Choix multiples", open: "Question libre", image: "Question image" };
+const typeLabels = { mcq: "Choix multiples", open: "Question libre", image: "Question image", "image-choice": "Choix d'image" };
 const letters = ["A", "B", "C", "D", "E", "F"];
 
 /* ---------- Score : calcul et affichage ---------- */
@@ -826,9 +908,21 @@ function render(){
               onerror="this.outerHTML='<div class=&quot;image-missing&quot;>Image introuvable : ${q.image}<br>Placez le fichier dans le dossier /images</div>'">`;
   }
 
+  const isImageChoice = (q.type === "image-choice" && Array.isArray(q.images));
   const isMcq = (q.type === "mcq" || (q.type === "image" && Array.isArray(q.options)));
+  const hasOptions = isMcq || isImageChoice;
 
-  if (isMcq){
+  if (isImageChoice){
+    html += `<div class="options image-options" id="optionsWrap">`;
+    q.images.forEach((img, i) => {
+      html += `<div class="option image-option" data-index="${i}">
+                 <img class="option-img" src="${img}" alt="" data-zoom-src="${img}"
+                      onerror="this.outerHTML='<div class=&quot;option-img-missing&quot;>Image introuvable :<br>${img}</div>'">
+                 <button class="letter-btn" data-index="${i}">Choisir ${letters[i]}</button>
+               </div>`;
+    });
+    html += `</div>`;
+  } else if (isMcq){
     html += `<div class="options" id="optionsWrap">`;
     q.options.forEach((opt, i) => {
       html += `<div class="option" data-index="${i}">
@@ -853,7 +947,14 @@ function render(){
   }
 
   // Attache les évènements après insertion dans le DOM
-  if (isMcq){
+  if (isImageChoice){
+    stage.querySelectorAll('.image-option .option-img').forEach(imgEl => {
+      imgEl.addEventListener('click', () => openLightbox(imgEl.dataset.zoomSrc));
+    });
+    stage.querySelectorAll('.image-option .letter-btn').forEach(btn => {
+      btn.addEventListener('click', () => selectOption(parseInt(btn.dataset.index)));
+    });
+  } else if (hasOptions){
     stage.querySelectorAll('.option').forEach(el => {
       el.addEventListener('click', () => selectOption(parseInt(el.dataset.index)));
     });
@@ -878,9 +979,9 @@ function render(){
 
 function showCorrectVisual(){
   const q = questions[current];
-  const isMcq = (q.type === "mcq" || (q.type === "image" && Array.isArray(q.options)));
+  const hasOptions = (q.type === "mcq" || q.type === "image-choice" || (q.type === "image" && Array.isArray(q.options)));
 
-  if (isMcq){
+  if (hasOptions){
     const wrap = document.getElementById('optionsWrap');
     wrap.classList.add('locked');
     wrap.querySelectorAll('.option').forEach(el => {
