@@ -70,8 +70,8 @@ const questions = [
            question: "Sur quelle(s) image(s) voit-on Mathieu ?",
            images: [
              "images/Mathieu1.jpg",
-             "images/Clement3.jpg",
-             "images/Mathieu4.jpg",
+             "images/Clement3.JPG",
+             "images/Mathieu4.JPG",
              "images/Clement1.jpg"
            ],
            correctIndex: [0, 2],
@@ -103,10 +103,10 @@ const questions = [
          type: "image-choice",
          question: "Sur quelle(s) image(s) voit-on Mathieu ?",
          images: [
-           "images/Clement2.jpg",
+           "images/Clement2.JPG",
            "images/Mathieu2.jpg",
-           "images/Mathieu3.jpg",
-           "images/Clement4.jpg"
+           "images/Mathieu3.JPG",
+           "images/Clement4.JPG"
          ],
          correctIndex: [1, 2],
          points: 1
@@ -145,7 +145,7 @@ const questions = [
         images: [
           "images/cameleon.jpeg",
           "images/oiseau.jpeg",
-          "images/Bounty.jpeg",
+          "images/bounty.jpeg",
           "images/tortue.jpeg"
         ],
         correctIndex: 2,
